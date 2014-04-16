@@ -8,11 +8,11 @@ if(isset($_GET['action']))
 	{
 		case "acheter": break;
 		case "annuler":
-			$listeId=0;//TODO
 			$tabNoArticle=$_GET['tabNoArticle']; 
 			foreach($tabNoArticle as $noArticle)
 			{
-				$sql="delete from contenuListe where produitId=".$noArticle." and listeId=".$listeId;
+				$sql="delete from contenuListe where produitId=".$noArticle." and listeId=".$noListeEnCours;
+				//echo $sql;
 				$res=mysql_query($sql);
 			}
 			break;
@@ -20,7 +20,7 @@ if(isset($_GET['action']))
 	}
 }
 
-$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId='".$noListeEnCours."'"; 
+$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$noListeEnCours; 
 
 //execution
 $result = mysql_query($sql);
