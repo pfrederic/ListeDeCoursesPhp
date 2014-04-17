@@ -35,6 +35,51 @@ function annulerProduitDeLaListe($noListe)
 		$res=mysql_query($sql);
 	}
  }
+
+ function creerNouvelleListe()
+ {
+	//ToDO l'appel à l'id de la famille
+	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId=1";
+        $res=mysql_query($sql);
+        $ligne=mysql_fetch_array($res);
+        $idNouvelleListe=$ligne['derniereListeDeLaFamille'];
+        //ToDO l'appel à l'id de la famille
+        //$sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", "..", FALSE)";
+        $res=mysql_query($sql);
+        return $idNouvelleListe;
+ }
+ 
+/**
+ * Fonction qui report sur la liste de course suivante
+ * Elle exécute une requête pour connaitre la liste de course suivante, la crée aux besoins, et ajoute les produits dans la nouvelle liste
+ */
+ function reporterProduitListeSuivante($noListe)
+ {
+	$idListe;
+        //Recherche de la liste suivante
+	//ToDO l'appel à l'id de la famille
+        //$sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".." and enCours='FALSE'";
+        //echo $sql;
+        $res=mysql_query($sql);
+        $ligne=mysql_fetch_array($res);
+        if($res==FALSE)
+        {
+        	$idListe=creerNouvelleListe();
+        }
+        else
+        {
+        	$idListe=$ligne['listeDeLaFamilleInactif'];
+        }
+        $tabNoArticle=$_GET['tabNoArticle'];
+        //Boucle qui parcours le tableau de produit à reporter de la liste
+        foreach($tabNoArticle as $noArticle)
+        {
+		//ToDO l'appel à l'id de la famille
+                //$sql="update contenuListe set listeId=".$idListe." where listeId=".$noListe." and familleId=".;
+		$res=mysql_query($sql);
+        }
+  }
+
 /******************************************************/
 /*                    ACTION & Json                   */
 /******************************************************/
@@ -51,6 +96,7 @@ if(isset($_GET['action']))
 			annulerProduitDeLaListe($noListeEnCours);
 			break;
 		case "reporter": 
+			reporterProduitListeSuivante($noListeEnCours);
 			break;
 	}
 }
