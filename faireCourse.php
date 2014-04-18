@@ -8,13 +8,13 @@ include("commun.php");
  * Fonction qui retire tous les produit non-désiré de la liste.
  * Elle exécute une requête de supression de données autant de fois qu'il à de produit à retirer.
  */
-function annulerProduitDeLaListe($noListe)
+function annulerProduitDeLaListe()
 {
 	$tabNoArticle=$_GET['tabNoArticle'];
 	//Boucle qui parcours le tableau de produit à retirer de la liste
 	foreach($tabNoArticle as $noArticle)
 	{
-		$sql="delete from contenuListe where produitId=".$noArticle." and listeId=".$noListe;
+		$sql="delete from contenuListe where produitId=".$noArticle." and listeId=".$_SESSION['liste'];
 		//echo $sql;
 		$res=mysql_query($sql);
 	}
@@ -24,13 +24,13 @@ function annulerProduitDeLaListe($noListe)
  * Fonction qui change le statut du produit, pour le passer à "poser dans le caddy".
  * Ell exécute une requête de modification de données pour passer à true le "dansCaddy" de la table "contenuListe".
  */
- function poserProduitDansCaddy($noListe)
+ function poserProduitDansCaddy()
  {
 	$tabNoArticle=$_GET['tabNoArticle'];
 	//Boucle qui parcours le tableau de produit à retirer de la liste
 	foreach($tabNoArticle as $noArticle)
 	{
-		$sql="update contenuListe set dansCaddy=true where produitId=".$noArticle." and listeId=".$noListe;
+		$sql="update contenuListe set dansCaddy=true where produitId=".$noArticle." and listeId=".$_SESSION['liste'];
 		//echo $sql;
 		$res=mysql_query($sql);
 	}
@@ -38,13 +38,12 @@ function annulerProduitDeLaListe($noListe)
 
  function creerNouvelleListe()
  {
-	//ToDO l'appel à l'id de la famille
-	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId=1";
+	$idFamille=$_SESSION['famille'];
+	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId="$idFamille;
         $res=mysql_query($sql);
         $ligne=mysql_fetch_array($res);
         $idNouvelleListe=$ligne['derniereListeDeLaFamille'];
-        //ToDO l'appel à l'id de la famille
-        //$sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", "..", FALSE)";
+        $sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", ".$idFamille.", FALSE)";
         $res=mysql_query($sql);
         return $idNouvelleListe;
  }
@@ -53,12 +52,12 @@ function annulerProduitDeLaListe($noListe)
  * Fonction qui report sur la liste de course suivante
  * Elle exécute une requête pour connaitre la liste de course suivante, la crée aux besoins, et ajoute les produits dans la nouvelle liste
  */
- function reporterProduitListeSuivante($noListe)
+ function reporterProduitListeSuivante()
  {
 	$idListe;
+	$idFamille=$_SESSION['famille'];
         //Recherche de la liste suivante
-	//ToDO l'appel à l'id de la famille
-        //$sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".." and enCours='FALSE'";
+        $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$idFamille." and enCours='FALSE'";
         //echo $sql;
         $res=mysql_query($sql);
         $ligne=mysql_fetch_array($res);
@@ -74,8 +73,7 @@ function annulerProduitDeLaListe($noListe)
         //Boucle qui parcours le tableau de produit à reporter de la liste
         foreach($tabNoArticle as $noArticle)
         {
-		//ToDO l'appel à l'id de la famille
-                //$sql="update contenuListe set listeId=".$idListe." where listeId=".$noListe." and familleId=".;
+                $sql="update contenuListe set listeId=".$idListe." where listeId=".$_SESSION['liste']." and familleId=".$idFamille;
 		$res=mysql_query($sql);
         }
   }
@@ -90,19 +88,19 @@ if(isset($_GET['action']))
 	switch($action)
 	{
 		case "acheter":
-			poserProduitDansCaddy($noListeEnCours);
+			poserProduitDansCaddy();
 			break;
 		case "annuler":
-			annulerProduitDeLaListe($noListeEnCours);
+			annulerProduitDeLaListe();
 			break;
 		case "reporter": 
-			reporterProduitListeSuivante($noListeEnCours);
+			reporterProduitListeSuivante();
 			break;
 	}
 }
 
 //requete sql
-$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$noListeEnCours; 
+$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$_SESSION['liste']; 
 
 //execution
 $result = mysql_query($sql);

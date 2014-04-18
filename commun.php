@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $host="localhost"; 
 $username="userLCourse"; 
 $password="lcpasswd"; 
