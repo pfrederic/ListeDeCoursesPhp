@@ -39,7 +39,7 @@ function annulerProduitDeLaListe()
  function creerNouvelleListe()
  {
 	$idFamille=$_SESSION['famille'];
-	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId="$idFamille;
+	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId=".$idFamille;
         $res=mysql_query($sql);
         $ligne=mysql_fetch_array($res);
         $idNouvelleListe=$ligne['derniereListeDeLaFamille'];
