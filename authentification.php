@@ -1,5 +1,14 @@
 <?php
 include("commun.php");
+
+function connaitreListeDuMembreConnecte($idFamille)
+{
+	$sql="select listeId from liste where familleId=".$idFamille;
+	//echo $sql;
+	$res=mysql_query($sql);
+	$ligne=mysql_fetch_array($res);
+	$_SESSION['liste']=$ligne['listeId'];
+}
 if(isset($_GET['action']) && $_GET['action']=="login")
 {
 	$id=$_GET['id'];
@@ -9,13 +18,15 @@ if(isset($_GET['action']) && $_GET['action']=="login")
 	$mdp=addcslashes($mdp, '\'\"');
 	
 	$monTableau=array();
-	$req="SELECT membreId, membreMdp FROM membre WHERE membreId='".$id."' AND membreMdp='".$mdp."'";
+	$req="SELECT membreId, membreMdp, familleId FROM membre WHERE membreId='".$id."' AND membreMdp='".$mdp."'";
 	$res=mysql_query($req);
 	$monTableau=array();
 	if(mysql_num_rows($res))
 	{
 		$ligne=mysql_fetch_assoc($res);
 		$monTableau['authentification'][]=$ligne;
+		$_SESSION['famille']=$ligne['familleId'];
+		connaitreListeDuMembreConnecte($ligne['familleId']);
 	}
 	else
 	{
