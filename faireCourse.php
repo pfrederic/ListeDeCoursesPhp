@@ -22,7 +22,7 @@ function annulerProduitDeLaListe()
 
 /**
  * Fonction qui change le statut du produit, pour le passer à "poser dans le caddy".
- * Ell exécute une requête de modification de données pour passer à true le "dansCaddy" de la table "contenuListe".
+ * Elle exécute une requête de modification de données pour passer à true le "dansCaddy" de la table "contenuListe".
  */
  function poserProduitDansCaddy()
  {
@@ -30,22 +30,27 @@ function annulerProduitDeLaListe()
 	//Boucle qui parcours le tableau de produit à retirer de la liste
 	foreach($tabNoArticle as $noArticle)
 	{
-		$sql="update contenuListe set dansCaddy=true where produitId=".$noArticle." and listeId=".$_SESSION['liste'];
+		$sql="update contenuListe set membreId='".$_SESSION['membre']."' where produitId=".$noArticle." and listeId=".$_SESSION['liste'];
 		//echo $sql;
 		$res=mysql_query($sql);
 	}
  }
-
+/**
+ * Fonction qui créer une nouvelle liste de course pour la famille, si elle n'existe pas
+ * Elle exécute une requête de création de dans la table liste. Une liste qui est n'est pas active, elle s'apparente à la liste suivante.
+ */
  function creerNouvelleListe()
  {
 	$idFamille=$_SESSION['famille'];
 	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId=".$idFamille;
-        $res=mysql_query($sql);
-        $ligne=mysql_fetch_array($res);
-        $idNouvelleListe=$ligne['derniereListeDeLaFamille'];
-        $sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", ".$idFamille.", FALSE)";
-        $res=mysql_query($sql);
-        return $idNouvelleListe;
+	//echo $sql;
+    $res=mysql_query($sql);
+    $ligne=mysql_fetch_array($res);
+    $idNouvelleListe=$ligne['derniereListeDeLaFamille']+1;
+    $sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", ".$idFamille.", FALSE)";
+	//echo $sql;
+    $res=mysql_query($sql);
+    return $idNouvelleListe;
  }
  
 /**
@@ -54,28 +59,32 @@ function annulerProduitDeLaListe()
  */
  function reporterProduitListeSuivante()
  {
-	$idListe;
+ 	$idNewListe=NULL;
+	$idOldListe=$_SESSION['liste'];
 	$idFamille=$_SESSION['famille'];
-        //Recherche de la liste suivante
-        $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$idFamille." and enCours='FALSE'";
-        //echo $sql;
-        $res=mysql_query($sql);
-        $ligne=mysql_fetch_array($res);
-        if($res==FALSE)
-        {
-        	$idListe=creerNouvelleListe();
-        }
-        else
-        {
-        	$idListe=$ligne['listeDeLaFamilleInactif'];
-        }
-        $tabNoArticle=$_GET['tabNoArticle'];
-        //Boucle qui parcours le tableau de produit à reporter de la liste
-        foreach($tabNoArticle as $noArticle)
-        {
-                $sql="update contenuListe set listeId=".$idListe." where listeId=".$_SESSION['liste']." and familleId=".$idFamille;
+    //Recherche de la liste suivante
+    $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$idFamille." and enCours='FALSE'";
+    //echo $sql;
+    $res=mysql_query($sql);
+    $ligne=mysql_fetch_array($res);
+    if($ligne['listeDeLaFamilleInactif']==NULL)
+    {
+		//echo "If ";
+      	$idNewListe=creerNouvelleListe();
+    }
+    else
+    {
+		//echo "Else ";
+        $idNewListe=$ligne['listeDeLaFamilleInactif'];
+    }
+    $tabNoArticle=$_GET['tabNoArticle'];
+    //Boucle qui parcours le tableau de produit à reporter de la liste
+    foreach($tabNoArticle as $noArticle)
+    {
+        $sql="update contenuListe set listeId=".$idNewListe." where listeId=".$idOldListe." and produitId=".$noArticle;
+		//echo $sql;
 		$res=mysql_query($sql);
-        }
+    }
   }
 
 /******************************************************/
@@ -101,7 +110,7 @@ if(isset($_GET['action']))
 
 //requete sql
 $sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$_SESSION['liste']; 
-
+//echo $sql;
 //execution
 $result = mysql_query($sql);
 //le tableau

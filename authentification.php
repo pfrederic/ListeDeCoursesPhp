@@ -26,6 +26,7 @@ if(isset($_GET['action']) && $_GET['action']=="login")
 		$ligne=mysql_fetch_assoc($res);
 		$monTableau['authentification'][]=$ligne;
 		$_SESSION['famille']=$ligne['familleId'];
+		$_SESSION['membre']=$ligne['membreId'];
 		connaitreListeDuMembreConnecte($ligne['familleId']);
 	}
 	else
