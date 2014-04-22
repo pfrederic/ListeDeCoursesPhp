@@ -9,15 +9,15 @@ if(isset($_GET['action']))
 	if($action=="ajout")
 	{
 		//ToDo Faire appel au bon numéro de liste
-		$sql = "insert into contenuListe(listeId,produitId,listeQte) values(0,".$noProduit.", ".$qte.")"; 
+		$sql = "insert into contenuListe(listeId,produitId,listeQte) values(,".$noProduit.", ".$qte.")"; 
 		//echo $sql;
 		$result = mysql_query($sql);
 	}
 }
 $json = array();
-$sql2="select contenuListe.produitId as produitId ,produitLib,listeQte from contenuListe inner join produit on produit.produitId=contenuListe.produitId";
-$result2=mysql_query($sql2);
-while($row=mysql_fetch_assoc($result2))
+$sql="select contenuListe.produitId as produitId ,produitLib,listeQte from contenuListe inner join produit on produit.produitId=contenuListe.produitId where listeId=".$_SESSION['liste'];
+$res=mysql_query($sql);
+while($row=mysql_fetch_assoc($res))
 {
 	$json['listeDeCourse'][]=$row;
 }
