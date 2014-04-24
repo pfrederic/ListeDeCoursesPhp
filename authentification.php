@@ -30,8 +30,8 @@ function connaitreListeDuMembreConnecte($idFamille)
 function renseignerSession($idMembre, $mdpMembre)
 {
 	$monTableau=array();
-	$req="SELECT membreId, membreMdp, familleId FROM membre WHERE membreId='".$idMembre."' AND membreMdp='".$mdpMembre."'";
-	$res=mysql_query($req);
+	$sql="SELECT membreId, membreMdp, familleId FROM membre WHERE membreId='".$idMembre."' AND membreMdp='".$mdpMembre."'";
+	$res=mysql_query($sql);
 	$monTableau=array();
 	if(mysql_num_rows($res))
 	{
@@ -45,15 +45,30 @@ function renseignerSession($idMembre, $mdpMembre)
 	{
 		$monTableau['authentification'][]=array("erreur"=>"erreur");
 	}
-	connaitreListeDuMembreConnecte($_SESSION['famille']);
 	
 	echo json_encode($monTableau);
 }
 
+/**
+ * Fontction qui enregistre un nouvel utilisateur (membre).
+ * Exécute une requête sql d'insertion, avec les infrmations saisies par l'utilisateur sur l'application. Si l'identifiant saisi est déjà enregistrer dans la base, retour d'une erreur en Json.
+ */
 function enregistrerNouveauMembre($idMembre, $mdpMembre, $mailMembre, $naissanceMembre){
-	$req="insert into membre(membreId, membreMdp, membreMail, membreDateNaissance) values('".$idMembre."', '".$mdpMembre."', '".$mailMembre."', '".$naissanceMembre."')";
-	//echo $req;
-	$res=mysql_query($req);
+	$sql="insert into membre(membreId, membreMdp, membreMail, membreDateNaissance) values('".$idMembre."', '".$mdpMembre."', '".$mailMembre."', '".$naissanceMembre."')";
+	//echo $sql;
+	$res=mysql_query($sql);
+	if(mysql_errno()==1062)
+	{
+		$json=array();
+		$json['register'][]=array("erreur"=>"id already exists");;
+		echo json_encode($json);
+	}
+	else {
+		$json=array();
+		$json['register'][]=array("success"=>"");;
+		echo json_encode($json);
+	}
+	$_SESSION['membre']=$idMembre;
 }
 
 /******************************************************/
