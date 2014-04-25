@@ -31,6 +31,7 @@ function renseignerSession($idMembre, $mdpMembre)
 {
 	$monTableau=array();
 	$sql="SELECT membreId, membreMdp, familleId FROM membre WHERE membreId='".$idMembre."' AND membreMdp='".$mdpMembre."'";
+	//echo $sql;
 	$res=mysql_query($sql);
 	$monTableau=array();
 	if(mysql_num_rows($res))

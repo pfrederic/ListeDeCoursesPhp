@@ -16,19 +16,21 @@ function rechercheEtAffectationFamille()
 	$sql="select familleId from famille where familleCode=".$code;
 	//echo $sql;
 	$res=mysql_query($sql);
+	$json=array();
 	if(mysql_num_rows($res))
 	{
 		$ligne=mysql_fetch_array($res);
 		$idFamille=$ligne['familleId'];
 		$sql="update membre set familleId=".$idFamille." where membreId=".$idMembre;
 		//echo $sql;
-		$res=mysql_query($sql);
+		$res=mysql_query($sql);		
+		$json['famille'][]=array("success"=>"it works!");
 	}
 	else{
 		$json=array();
-		$json['famille'][]=array("erreur"=>"no family");;
-		echo json_encode($json);
+		$json['famille'][]=array("erreur"=>"no family");		
 	}
+	echo json_encode($json);
 }
 
 /******************************************************/
