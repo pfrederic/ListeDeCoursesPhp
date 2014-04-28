@@ -21,9 +21,10 @@ function rechercheEtAffectationFamille()
 	{
 		$ligne=mysql_fetch_array($res);
 		$idFamille=$ligne['familleId'];
-		$sql="update membre set familleId=".$idFamille." where membreId=".$idMembre;
+		$sql="update membre set familleId=".$idFamille." where membreId='".$idMembre."'";
 		//echo $sql;
 		$res=mysql_query($sql);		
+		connaitreListeDuMembreConnecte($idFamille);
 		$json['famille'][]=array("success"=>"it works!");
 	}
 	else{
@@ -33,15 +34,68 @@ function rechercheEtAffectationFamille()
 	echo json_encode($json);
 }
 
+/**
+ * Fonction qui créer un nouvel identifiant, pour la futur famille.
+ * Elle exécute une requête pour connaitre le dernier identifiant de la table famille, ajoute 1 à cette valeur, et renvoi cette dernière.
+ */
+function creerNouvelIdentifiant()
+{
+	$sql="select max(familleId) lastId from famille";
+	//echo $sql;
+	$res=mysql_query($sql);
+	$ligne=mysql_fetch_array($res);
+	$nouvelleIdentifiant=$ligne['lastId']+1;
+	return $nouvelleIdentifiant;
+}
+
+/**
+ * Fonction qui génére un code famille aléatoire et unique.
+ * Elle génére un code tant que celui-ci est existant dans la base (exécution d'une requête pour vérifier si le code généré n'est pas déjà existant). Une fois qu'un code généré est unique, on renvoi ce code.
+ */
+function genererCodeFamille()
+{
+	$codeFamille;
+	$ligne="lorem ipsum";
+	while(!empty($ligne))
+	{
+		$codeFamille=rand(0, 99999999999);
+		$sql="select familleCode from famille where familleCode=".$codeFamille;
+		//echo $sql;
+		$res=mysql_query($sql);
+		$ligne=mysql_fetch_array($res);
+	}
+	return $codeFamille;
+}
+
+/**
+ * Fonction qui créé une famille dans la base.
+ * Fait appel à la fonction "genererCodeFamille()" et "creerNouvelIdentifiant()", puis exécute une requête d'insertion.
+ */
+function creationFamille()
+{
+	$libelle=$_GET['libelle'];
+	$membre=$_SESSION['membre'];
+	$codeFamille=genererCodeFamille();
+	$identifiant=creerNouvelIdentifiant();
+	$sql="insert into famille(familleId, familleLib, familleCode, responsableId) values(".$identifiant.", '".$libelle."', ".$codeFamille.", '".$membre."')";
+	//echo $sql;
+	$res=mysql_query($sql);
+}
+
 /******************************************************/
 /*                    ACTION & Json                   */
 /******************************************************/
 if(isset($_GET['action']))
 {
 	$action=$_GET['action'];
-	if($action=="rejoindre")
-	{		
+	switch($action)
+	{
+		case "rejoindre":
 		rechercheEtAffectationFamille();
+		break;
+		case "creation";
+		creationFamille();
+		break;
 	}
 }
 ?>

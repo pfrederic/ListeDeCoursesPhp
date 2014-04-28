@@ -6,20 +6,6 @@ include("commun.php");
 /******************************************************/
 
 /**
- * Fonction qui renseigne l'identifiant de la liste en cours, du membre connecté.
- * Elle exécute une requête de projection, et renseigne une variable session du résultat de cette requête.
- * @param int $idFamille Identifiant de la famille du membre
- */
-function connaitreListeDuMembreConnecte($idFamille)
-{
-	$sql="select listeId from liste where familleId=".$idFamille;
-	//echo $sql;
-	$res=mysql_query($sql);
-	$ligne=mysql_fetch_array($res);
-	$_SESSION['liste']=$ligne['listeId'];
-}
-
-/**
  * Fonction qui renseigne l'identifiant du membre et celui de sa famille
  * Elle exécute une requête de projection, qui vérifie si ce qui a été saisi correspond aux données de la base.
  * Si c'est le cas, les données renvoyées par la requête sont renseigné dans des sessions.
@@ -30,7 +16,7 @@ function connaitreListeDuMembreConnecte($idFamille)
 function renseignerSession($idMembre, $mdpMembre)
 {
 	$monTableau=array();
-	$sql="SELECT membreId, membreMdp, familleId FROM membre WHERE membreId='".$idMembre."' AND membreMdp='".$mdpMembre."'";
+	$sql="select membreId, membreMdp, familleId from membre where membreId='".$idMembre."' and membreMdp='".$mdpMembre."'";
 	//echo $sql;
 	$res=mysql_query($sql);
 	$monTableau=array();
@@ -55,21 +41,24 @@ function renseignerSession($idMembre, $mdpMembre)
  * Exécute une requête sql d'insertion, avec les infrmations saisies par l'utilisateur sur l'application. Si l'identifiant saisi est déjà enregistrer dans la base, retour d'une erreur en Json.
  */
 function enregistrerNouveauMembre($idMembre, $mdpMembre, $mailMembre, $naissanceMembre){
+	$json=array();
 	$sql="insert into membre(membreId, membreMdp, membreMail, membreDateNaissance) values('".$idMembre."', '".$mdpMembre."', '".$mailMembre."', '".$naissanceMembre."')";
 	//echo $sql;
 	$res=mysql_query($sql);
-	if(mysql_errno()==1062)
+	if(strpos(mysql_error(), "mailUnique"))
+	{		
+		$json['register'][]=array("erreur"=>"mail");;
+	}
+	else if(strpos(mysql_error(), "PRIMARY"))
 	{
-		$json=array();
-		$json['register'][]=array("erreur"=>"id already exists");;
-		echo json_encode($json);
+		$json['register'][]=array("erreur"=>"id");;
 	}
-	else {
-		$json=array();
+	else
+	{
 		$json['register'][]=array("success"=>"");;
-		echo json_encode($json);
+		$_SESSION['membre']=$idMembre;
 	}
-	$_SESSION['membre']=$idMembre;
+	echo json_encode($json);
 }
 
 /******************************************************/
