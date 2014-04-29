@@ -7,12 +7,11 @@ include("commun.php");
 
 /**
  * Fonction qui recherche l'identifiant de la famille selon le code saisi
- * Elle exécute une première requête de projection pour connaître l'identifiant de la famille selon le code saisi. Si il existe bien une famille, alors une seconde requête est exécuté pour mettre jour le membre avec l'identifiant de la famille. Sinon renvoi un tableau pour informer de l'inexistance de la famille.
+ * Elle exécute une requête de projection pour connaître l'identifiant de la famille selon le code saisi. Si il existe bien une famille, alors fait appel à fonction pour mettre à jour le membre. Sinon renvoi un tableau pour informer de l'inexistance de la famille.
  */
-function rechercheEtAffectationFamille()
+function rechercheFamille()
 {
 	$code=$_GET['code'];
-	$idMembre=$_SESSION['membre'];
 	$sql="select familleId from famille where familleCode=".$code;
 	//echo $sql;
 	$res=mysql_query($sql);
@@ -21,9 +20,7 @@ function rechercheEtAffectationFamille()
 	{
 		$ligne=mysql_fetch_array($res);
 		$idFamille=$ligne['familleId'];
-		$sql="update membre set familleId=".$idFamille." where membreId='".$idMembre."'";
-		//echo $sql;
-		$res=mysql_query($sql);		
+		affectationFamille($idFamille);
 		connaitreListeDuMembreConnecte($idFamille);
 		$json['famille'][]=array("success"=>"it works!");
 	}
@@ -32,6 +29,19 @@ function rechercheEtAffectationFamille()
 		$json['famille'][]=array("erreur"=>"no family");		
 	}
 	echo json_encode($json);
+}
+
+/**
+ * Fonction qui renseigne un identifiant d'une famille pour un membre
+ * Exécute une requête pour mettre à jour le membre avec l'identifiant de la famille passé en paramètre
+ * @param int $idFamille Identifiant de la famille à affecté au membre
+ */
+function affectationFamille($idFamille)
+{
+	$idMembre=$_SESSION['membre'];
+	$sql="update membre set familleId=".$idFamille." where membreId='".$idMembre."'";
+	//echo $sql;
+	$res=mysql_query($sql);
 }
 
 /**
@@ -73,6 +83,7 @@ function genererCodeFamille()
  */
 function creationFamille()
 {
+	$json=array();
 	$libelle=$_GET['libelle'];
 	$membre=$_SESSION['membre'];
 	$codeFamille=genererCodeFamille();
@@ -80,6 +91,10 @@ function creationFamille()
 	$sql="insert into famille(familleId, familleLib, familleCode, responsableId) values(".$identifiant.", '".$libelle."', ".$codeFamille.", '".$membre."')";
 	//echo $sql;
 	$res=mysql_query($sql);
+	
+	$json['famille'][]=array("success"=>"");
+	$_SESSION['famille']=$identifiant;
+	echo json_encode($json);
 }
 
 /******************************************************/
@@ -91,7 +106,7 @@ if(isset($_GET['action']))
 	switch($action)
 	{
 		case "rejoindre":
-		rechercheEtAffectationFamille();
+		rechercheFamille();
 		break;
 		case "creation";
 		creationFamille();

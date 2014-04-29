@@ -8,3 +8,6 @@ CREATE UNIQUE INDEX mailUnique ON membre(membreMail);
 
 -- Création d'index sur le champs "familleCode" de la table "famille"
 CREATE UNIQUE INDEX codeUnique ON famille(familleCode);
+
+-- Création d'index sur le champs "responsableId" de la table "famille"
+CREATE UNIQUE INDEX responsableUnique ON famille(responsableId);
