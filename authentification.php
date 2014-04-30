@@ -24,9 +24,12 @@ function renseignerSession($idMembre, $mdpMembre)
 	{
 		$ligne=mysql_fetch_assoc($res);
 		$monTableau['authentification'][]=$ligne;
-		$_SESSION['famille']=$ligne['familleId'];
+		if(!empty($ligne['familleId']))
+		{
+			$_SESSION['famille']=$ligne['familleId'];
+			connaitreListeDuMembreConnecte($ligne['familleId']);
+		}
 		$_SESSION['membre']=$ligne['membreId'];
-		connaitreListeDuMembreConnecte($ligne['familleId']);
 	}
 	else
 	{

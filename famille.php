@@ -91,7 +91,8 @@ function creationFamille()
 	$sql="insert into famille(familleId, familleLib, familleCode, responsableId) values(".$identifiant.", '".$libelle."', ".$codeFamille.", '".$membre."')";
 	//echo $sql;
 	$res=mysql_query($sql);
-	
+	$sql="update membre set familleId=".$identifiant." where membreId='".$membre."'";
+	$res=mysql_query($sql);
 	$json['famille'][]=array("success"=>"");
 	$_SESSION['famille']=$identifiant;
 	echo json_encode($json);
