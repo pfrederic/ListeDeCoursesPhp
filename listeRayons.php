@@ -9,7 +9,7 @@ if(isset($_GET['action'])&& $_GET['action']=='ajout')
 	$result=mysql_fetch_row($res1);
 	$prochainNumeroRayon=$result[0];
 
-	$sql="insert into rayon(rayonId,rayonLib)values($prochainNumeroRayon,'".$nomDuRayon."')";
+	$sql="insert into rayon(rayonId,rayonLib)values(".$prochainNumeroRayon.", '".$nomDuRayon."')";
 	$res=mysql_query($sql);
 }
 if(isset($_GET['action'])&& $_GET['action']=='delete')
@@ -22,7 +22,7 @@ if(isset($_GET['action'])&& $_GET['action']=='delete')
 	}
 }
 
-$sql = "select * from rayon"; 
+$sql = "select rayonId, rayonLib from rayon"; 
 //execution
 $result = mysql_query($sql);
 //le tableau

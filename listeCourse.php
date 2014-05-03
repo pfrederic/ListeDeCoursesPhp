@@ -8,8 +8,9 @@ if(isset($_GET['action']))
 
 	if($action=="ajout")
 	{
+		$liste=$_SESSION['liste'];
 		//ToDo Faire appel au bon numéro de liste
-		$sql = "insert into contenuListe(listeId,produitId,listeQte) values(,".$noProduit.", ".$qte.")"; 
+		$sql = "insert into contenuListe(listeId,produitId,listeQte) values(".$liste.", ".$noProduit.", ".$qte.")"; 
 		//echo $sql;
 		$result = mysql_query($sql);
 	}
