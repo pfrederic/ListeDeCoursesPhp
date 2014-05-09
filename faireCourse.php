@@ -11,10 +11,11 @@ include("commun.php");
 function annulerProduitDeLaListe()
 {
 	$tabNoArticle=$_GET['tabNoArticle'];
+	$liste=connaitreListeDuMembreConnecte();
 	//Boucle qui parcours le tableau de produit à retirer de la liste
 	foreach($tabNoArticle as $noArticle)
 	{
-		$sql="delete from contenuListe where produitId=".$noArticle." and listeId=".$_SESSION['liste'];
+		$sql="delete from contenuListe where produitId=".$noArticle." and listeId=".$liste;
 		//echo $sql;
 		$res=mysql_query($sql);
 	}
@@ -27,10 +28,11 @@ function annulerProduitDeLaListe()
  function poserProduitDansCaddy()
  {
 	$tabNoArticle=$_GET['tabNoArticle'];
+	$liste=connaitreListeDuMembreConnecte();
 	//Boucle qui parcours le tableau de produit à retirer de la liste
 	foreach($tabNoArticle as $noArticle)
 	{
-		$sql="update contenuListe set membreId='".$_SESSION['membre']."' where produitId=".$noArticle." and listeId=".$_SESSION['liste'];
+		$sql="update contenuListe set membreId='".$_SESSION['membre']."' where produitId=".$noArticle." and listeId=".$liste;
 		//echo $sql;
 		$res=mysql_query($sql);
 	}
@@ -41,13 +43,13 @@ function annulerProduitDeLaListe()
  */
  function creerNouvelleListe()
  {
-	$idFamille=$_SESSION['famille'];
-	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId=".$idFamille;
+	$famille=connaitreFamilleDuMembreConnecte();
+	$sql="select max(listeId) derniereListeDeLaFamille from liste where familleId=".$famille;
 	//echo $sql;
     $res=mysql_query($sql);
     $ligne=mysql_fetch_array($res);
     $idNouvelleListe=$ligne['derniereListeDeLaFamille']+1;
-    $sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", ".$idFamille.", FALSE)";
+    $sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", ".$famille.", FALSE)";
 	//echo $sql;
     $res=mysql_query($sql);
     return $idNouvelleListe;
@@ -59,29 +61,29 @@ function annulerProduitDeLaListe()
  */
  function reporterProduitListeSuivante()
  {
- 	$idNewListe=NULL;
-	$idOldListe=$_SESSION['liste'];
-	$idFamille=$_SESSION['famille'];
+ 	$newListe=NULL;
+	$oldListe=connaitreListeDuMembreConnecte();
+	$famille=connaitreFamilleDuMembreConnecte();
     //Recherche de la liste suivante
-    $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$idFamille." and enCours='FALSE'";
+    $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$famille." and enCours='FALSE'";
     //echo $sql;
     $res=mysql_query($sql);
     $ligne=mysql_fetch_array($res);
     if($ligne['listeDeLaFamilleInactif']==NULL)
     {
 		//echo "If ";
-      	$idNewListe=creerNouvelleListe();
+      	$newListe=creerNouvelleListe();
     }
     else
     {
 		//echo "Else ";
-        $idNewListe=$ligne['listeDeLaFamilleInactif'];
+        $newListe=$ligne['listeDeLaFamilleInactif'];
     }
     $tabNoArticle=$_GET['tabNoArticle'];
     //Boucle qui parcours le tableau de produit à reporter de la liste
     foreach($tabNoArticle as $noArticle)
     {
-        $sql="update contenuListe set listeId=".$idNewListe." where listeId=".$idOldListe." and produitId=".$noArticle;
+        $sql="update contenuListe set listeId=".$newListe." where listeId=".$oldListe." and produitId=".$noArticle;
 		//echo $sql;
 		$res=mysql_query($sql);
     }
@@ -108,8 +110,9 @@ if(isset($_GET['action']))
 	}
 }
 
+$liste=connaitreListeDuMembreConnecte();
 //requete sql
-$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$_SESSION['liste']; 
+$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$liste; 
 //echo $sql;
 //execution
 $result = mysql_query($sql);

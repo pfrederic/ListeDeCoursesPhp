@@ -14,17 +14,30 @@ mysql_set_charset("UTF8");
 /******************************************************/
 
 /**
- * Fonction qui renseigne l'identifiant de la liste en cours, du membre connecté.
- * Elle exécute une requête de projection, et renseigne une variable session du résultat de cette requête.
- * @param int $idFamille Identifiant de la famille du membre
+ * Fonction qui retourne l'identifiant de la famille du membre connecté.
+ * Elle exécute une requête de projection, et retourne le résultat de cette requête.
  */
-function connaitreListeDuMembreConnecte($idFamille)
+function connaitreFamilleDuMembreConnecte()
 {
+	$sql="select familleId from membre where membreId=".$_SESSION['membre'];
+	//echo $sql;
+	$res=mysql_query($sql);
+	$ligne=mysql_fetch_array($res);
+	return $ligne['familleId'];
+}
+
+/**
+ * Fonction qui retourne l'identifiant de la liste en cours, du membre connecté.
+ * Elle exécute une requête de projection, et retourne le résultat de cette requête.
+ */
+function connaitreListeDuMembreConnecte()
+{
+	$idFamille=connaitreFamilleDuMembreConnecte();
 	$sql="select listeId from liste where familleId=".$idFamille;
 	//echo $sql;
 	$res=mysql_query($sql);
 	$ligne=mysql_fetch_array($res);
-	$_SESSION['liste']=$ligne['listeId'];
+	return $ligne['listeId'];
 }
 
 ?>

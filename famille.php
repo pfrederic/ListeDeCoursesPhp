@@ -46,16 +46,15 @@ function affectationFamille($idFamille)
 
 /**
  * Fonction qui créer un nouvel identifiant, pour la futur famille.
- * Elle exécute une requête pour connaitre le dernier identifiant de la table famille, ajoute 1 à cette valeur, et renvoi cette dernière.
+ * Elle exécute une requête qui trouve le dernier identifiant, et lui ajoute 1. Si il y a pas de dernier identifiant, renvoi 0.
  */
 function creerNouvelIdentifiant()
 {
-	$sql="select max(familleId) lastId from famille";
+	$sql="select ifnull(max(membreId),0)+1 nouvelId from famille";
 	//echo $sql;
 	$res=mysql_query($sql);
 	$ligne=mysql_fetch_array($res);
-	$nouvelleIdentifiant=$ligne['lastId']+1;
-	return $nouvelleIdentifiant;
+	return $ligne['nouvelId'];
 }
 
 /**
@@ -94,7 +93,6 @@ function creationFamille()
 	$sql="update membre set familleId=".$identifiant." where membreId='".$membre."'";
 	$res=mysql_query($sql);
 	$json['famille'][]=array("success"=>"");
-	$_SESSION['famille']=$identifiant;
 	echo json_encode($json);
 }
 

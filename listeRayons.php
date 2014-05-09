@@ -17,7 +17,7 @@ if(isset($_GET['action'])&& $_GET['action']=='delete')
 	$tabNoRayon=$_GET['tabNoRayon'];
 	foreach($tabNoRayon as $noRayon)
 	{
-		$sql="delete from  rayon where rayonId=$noRayon";
+		$sql="delete from  rayon where rayonId=".$noRayon;
 		$res=mysql_query($sql);
 	}
 }

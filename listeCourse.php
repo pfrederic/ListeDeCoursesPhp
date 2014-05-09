@@ -8,7 +8,7 @@ if(isset($_GET['action']))
 
 	if($action=="ajout")
 	{
-		$liste=$_SESSION['liste'];
+		$liste=connaitreListeDuMembreConnecte();
 		//ToDo Faire appel au bon numéro de liste
 		$sql = "insert into contenuListe(listeId,produitId,listeQte) values(".$liste.", ".$noProduit.", ".$qte.")"; 
 		//echo $sql;
@@ -16,7 +16,8 @@ if(isset($_GET['action']))
 	}
 }
 $json = array();
-$sql="select contenuListe.produitId as produitId ,produitLib,listeQte from contenuListe inner join produit on produit.produitId=contenuListe.produitId where listeId=".$_SESSION['liste'];
+$liste=connaitreListeDuMembreConnecte();
+$sql="select contenuListe.produitId as produitId ,produitLib,listeQte from contenuListe inner join produit on produit.produitId=contenuListe.produitId where listeId=".$liste;
 $res=mysql_query($sql);
 while($row=mysql_fetch_assoc($res))
 {
