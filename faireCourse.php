@@ -89,6 +89,63 @@ function annulerProduitDeLaListe()
     }
   }
 
+function listeProduitsOrdreRayonsMagasin(){
+	$liste=connaitreListeDuMembreConnecte();
+	$magasin=$_GET['magasin'];
+	//requete sql
+	$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib 
+	from produit inner join rayon on rayon.rayonId=produit.rayonId 
+	inner join contenuListe on contenuListe.produitId=produit.produitId 
+	inner join liste on liste.listeId=contenuListe.listeId 
+	inner join organisation on rayon.rayonId=organisation.rayonId
+	where enCours=true 
+	and liste.listeId=".$liste." 
+	and magasinId=".$magasin." 
+	order by organisationOrdre asc";
+	//echo $sql;
+	//execution
+	$result = mysql_query($sql);
+	//le tableau
+	$monTableau = array();
+	if(mysql_num_rows($result))//s'il y a un resultat
+	{
+		while($ligne=mysql_fetch_assoc($result))
+		{
+			$monTableau['coursesAFaire'][]=$ligne;
+		}
+	}
+	listeProduitsPasDansMagasin($monTableau);
+}
+
+function listeProduitsPasDansMagasin($Json)
+{
+	$liste=connaitreListeDuMembreConnecte();
+	$magasin=$_GET['magasin'];
+	//requete sql
+	$sql = "select produit.produitId as produitId, produitLib, listeQte 
+	from produit inner join rayon on rayon.rayonId=produit.rayonId 
+	inner join contenuListe on contenuListe.produitId=produit.produitId 
+	inner join liste on liste.listeId=contenuListe.listeId 
+	where enCours=true 
+	and liste.listeId=".$liste." 
+	and rayon.rayonId not in (
+		select rayonId
+		from organisation
+		where magasinId=".$magasin.")";
+	//echo $sql;
+	//execution
+	$result = mysql_query($sql);
+	if(mysql_num_rows($result))//s'il y a un resultat
+	{
+		while($ligne=mysql_fetch_assoc($result))
+		{
+			$Json['coursesAFaire'][]=$ligne;
+		}
+}
+
+echo json_encode($Json); 
+}
+
 /******************************************************/
 /*                    ACTION & Json                   */
 /******************************************************/
@@ -107,9 +164,11 @@ if(isset($_GET['action']))
 		case "reporter": 
 			reporterProduitListeSuivante();
 			break;
+		case "liste":
+			listeProduitsOrdreRayonsMagasin();
 	}
 }
-
+/*
 $liste=connaitreListeDuMembreConnecte();
 //requete sql
 $sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$liste; 
@@ -126,5 +185,5 @@ if(mysql_num_rows($result))//s'il y a un resultat
 	}
 }
 
-echo json_encode($monTableau); 
+echo json_encode($monTableau); */
 ?> 

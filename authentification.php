@@ -30,7 +30,7 @@ function nouveauIdMembre()
 function connexionMembre($loginMembre, $mdpMembre)
 {
 	$monTableau=array();
-	$sql="select membreId, membreMdp, familleId from membre where membreLogin='".$loginMembre."' and membreMdp='".$mdpMembre."'";
+	$sql="select membreId, membreLogin, membreMdp, familleId from membre where membreLogin='".$loginMembre."' and membreMdp='".$mdpMembre."'";
 	//echo $sql;
 	$res=mysql_query($sql);
 	$monTableau=array();
@@ -66,15 +66,15 @@ function enregistrerNouveauMembre($loginMembre, $mdpMembre, $mailMembre, $naissa
 	$res=mysql_query($sql);
 	if(strpos(mysql_error(), "mailUnique"))
 	{		
-		$json['register'][]=array("erreur"=>"mail");;
+		$json['register'][]=array("erreur"=>"mail");
 	}
 	else if(strpos(mysql_error(), "loginUnique"))
 	{
-		$json['register'][]=array("erreur"=>"login");;
+		$json['register'][]=array("erreur"=>"login");
 	}
 	else
 	{
-		$json['register'][]=array("success"=>"");;
+		$json['register'][]=array("success"=>"");
 		$_SESSION['membre']=$idMembre;
 	}
 	echo json_encode($json);
