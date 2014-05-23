@@ -1,20 +1,71 @@
 <?php
 include("commun.php");
+
+
+/******************************************************/
+/*                      FUNCTION                      */
+/******************************************************/
+/**
+ * Fonction qui ajoute un produit dans la liste
+ * Elle exécute une requête d'insertion dans la table contenuListe.
+ */
+function ajoutProduitDansLaListe()
+{
+	$noProduit=$_GET['produitId'];
+	$qte=$_GET['qte'];
+	$liste=connaitreListeDuMembreConnecte();
+	$sql="insert into contenuListe(listeId,produitId,listeQte) values(".$liste.", ".$noProduit.", ".$qte.")"; 
+	//echo $sql;
+	$result=mysql_query($sql);
+}
+
+/**
+ * Fonction qui modifie la quantité d'un produit de la liste
+ * Elle exécute une rquête de mise à jour, selon la valeur saisie par l'utilisateur.
+ */
+function modificationQuantite()
+{
+	$noProduit=$_GET['produitId'];
+	$qte=$_GET['qte'];
+	$liste=connaitreListeDuMembreConnecte();
+	$sql="update contenuListe set listeQte=".$qte." where produitId=".$noProduit." and listeId=".$liste;
+	//echo $sql;
+	$result=mysql_query($sql);
+}
+
+/**
+ * Fonction qui supprime un produit de la liste
+ * Elle exécute une requête de suppression, selon le produit choisi par l'utilisateur.
+ */
+function suppressionProduit() 
+{
+	$noProduit=$_GET['produitId'];
+	$liste=connaitreListeDuMembreConnecte();
+	$sql="delete from contenuListe where produitId=".$noProduit." and listeId=".$liste;
+	//echo $sql;
+	$result=mysql_query($sql);
+}
+
+/******************************************************/
+/*                    ACTION & Json                   */
+/******************************************************/
 if(isset($_GET['action']))
 {
 	$action=$_GET['action'];
-	$noProduit=$_GET['produitId'];
-	$qte=$_GET['qte'];
-
-	if($action=="ajout")
+	switch($action)
 	{
-		$liste=connaitreListeDuMembreConnecte();
-		//ToDo Faire appel au bon numéro de liste
-		$sql = "insert into contenuListe(listeId,produitId,listeQte) values(".$liste.", ".$noProduit.", ".$qte.")"; 
-		//echo $sql;
-		$result = mysql_query($sql);
+		case "ajout":
+			ajoutProduitDansLaListe();
+			break;
+		case "modification":
+			modificationQuantite();
+			break;
+		case "suppression":
+			suppressionProduit();
+			break;
 	}
 }
+
 $json = array();
 $liste=connaitreListeDuMembreConnecte();
 $sql="select contenuListe.produitId as produitId ,produitLib,listeQte from contenuListe inner join produit on produit.produitId=contenuListe.produitId where listeId=".$liste;
