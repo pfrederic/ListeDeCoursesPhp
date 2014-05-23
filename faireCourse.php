@@ -89,9 +89,18 @@ function annulerProduitDeLaListe()
     }
   }
 
-function listeProduitsOrdreRayonsMagasin(){
+function listeProduitsOrdreRayonsMagasin()
+{
 	$liste=connaitreListeDuMembreConnecte();
-	$magasin=$_GET['magasin'];
+	if(isset($_GET['magasin']))
+	{
+		$_SESSION['magasin']=$_GET['magasin'];
+		$magasin=$_GET['magasin'];
+	}
+	else
+	{
+		$magasin=$_SESSION['magasin'];
+	}
 	//requete sql
 	$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib 
 	from produit inner join rayon on rayon.rayonId=produit.rayonId 
@@ -101,6 +110,7 @@ function listeProduitsOrdreRayonsMagasin(){
 	where enCours=true 
 	and liste.listeId=".$liste." 
 	and magasinId=".$magasin." 
+	and membreId is null 
 	order by organisationOrdre asc";
 	//echo $sql;
 	//execution
@@ -120,7 +130,14 @@ function listeProduitsOrdreRayonsMagasin(){
 function listeProduitsPasDansMagasin($Json)
 {
 	$liste=connaitreListeDuMembreConnecte();
-	$magasin=$_GET['magasin'];
+	if(isset($_GET['magasin']))
+	{
+		$magasin=$_GET['magasin'];
+	}
+	else
+	{
+		$magasin=$_SESSION['magasin'];
+	}
 	//requete sql
 	$sql = "select produit.produitId as produitId, produitLib, listeQte 
 	from produit inner join rayon on rayon.rayonId=produit.rayonId 
@@ -128,6 +145,7 @@ function listeProduitsPasDansMagasin($Json)
 	inner join liste on liste.listeId=contenuListe.listeId 
 	where enCours=true 
 	and liste.listeId=".$liste." 
+	and membreId is null 
 	and rayon.rayonId not in (
 		select rayonId
 		from organisation
@@ -164,26 +182,7 @@ if(isset($_GET['action']))
 		case "reporter": 
 			reporterProduitListeSuivante();
 			break;
-		case "liste":
-			listeProduitsOrdreRayonsMagasin();
 	}
+	listeProduitsOrdreRayonsMagasin();
 }
-/*
-$liste=connaitreListeDuMembreConnecte();
-//requete sql
-$sql = "select produit.produitId as produitId, produitLib, listeQte, rayon.rayonId as rayonId, rayonLib from produit inner join rayon on rayon.rayonId=produit.rayonId inner join contenuListe on contenuListe.produitId=produit.produitId inner join liste on liste.listeId=contenuListe.listeId where enCours=true and liste.listeId=".$liste; 
-//echo $sql;
-//execution
-$result = mysql_query($sql);
-//le tableau
-$monTableau = array();
-if(mysql_num_rows($result))//s'il y a un resultat
-{
-	while($ligne=mysql_fetch_assoc($result))
-	{
-		$monTableau['coursesAFaire'][]=$ligne;
-	}
-}
-
-echo json_encode($monTableau); */
 ?> 
