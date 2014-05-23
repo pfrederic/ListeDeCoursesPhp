@@ -96,6 +96,24 @@ function creationFamille()
 	echo json_encode($json);
 }
 
+function getCodeFamille()
+{
+	$json=array();
+	$membre=$_SESSION['membre'];
+	$sql="select familleCode from famille where responsableId=".$membre;
+	$result=mysql_query($sql);
+	if(mysql_num_rows($result))
+	{
+		$ligne=mysql_fetch_assoc($result);
+		$json['famille'][]=$ligne;
+	}
+	else
+	{
+		$json['famille'][]=array("erreur"=>"not allowed");
+	}
+	echo json_encode($json);
+}
+
 /******************************************************/
 /*                    ACTION & Json                   */
 /******************************************************/
@@ -105,11 +123,14 @@ if(isset($_GET['action']))
 	switch($action)
 	{
 		case "rejoindre":
-		rechercheFamille();
-		break;
+			rechercheFamille();
+			break;
 		case "creation";
-		creationFamille();
-		break;
+			creationFamille();
+			break;
+		case "code":
+			getCodeFamille();
+			break;
 	}
 }
 ?>
