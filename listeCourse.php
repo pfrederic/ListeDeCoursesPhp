@@ -70,9 +70,16 @@ $json = array();
 $liste=connaitreListeDuMembreConnecte();
 $sql="select contenuListe.produitId as produitId ,produitLib,listeQte from contenuListe inner join produit on produit.produitId=contenuListe.produitId where listeId=".$liste;
 $res=mysql_query($sql);
-while($row=mysql_fetch_assoc($res))
+if(mysql_num_rows($res))//s'il y a un resultat
 {
-	$json['listeDeCourse'][]=$row;
+	while($row=mysql_fetch_assoc($res))
+	{
+		$json['listeDeCourse'][]=$row;
+	}
+}
+else
+{
+	$json['listeDeCourse'][]=array("" => "");
 }
 echo json_encode($json);
 ?> 

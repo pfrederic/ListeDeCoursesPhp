@@ -33,7 +33,7 @@ function connaitreFamilleDuMembreConnecte()
 function connaitreListeDuMembreConnecte()
 {
 	$idFamille=connaitreFamilleDuMembreConnecte();
-	$sql="select listeId from liste where familleId=".$idFamille;
+	$sql="select listeId from liste where familleId=".$idFamille." and enCours=TRUE";
 	//echo $sql;
 	$res=mysql_query($sql);
 	$ligne=mysql_fetch_array($res);
