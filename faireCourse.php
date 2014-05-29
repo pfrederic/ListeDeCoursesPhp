@@ -4,6 +4,55 @@ include("commun.php");
 /******************************************************/
 /*                      FUNCTION                      */
 /******************************************************/
+
+/**
+ * Fonction qui archive une liste si tous les produits de la liste sont pris.
+ * Elle vérifie que les produits sont tous pris. Si c'est le cas alors elle passe la liste en cours à false. Puis elle cherche la liste suivante et l'active.
+ * Si elle ne trouve pas de liste, alors elle fait appel à une fonction pour en créer une.
+ */
+function archivageListe()
+{
+	$liste=connaitreListeDuMembreConnecte();
+	$famille=connaitreFamilleDuMembreConnecte();
+
+	$requeteTousLesProduitsDeLaListe="select count(*) nbProduitDansLaListe from contenuListe where listeId=".$liste;
+	$requeteTousLesProduitsPritDeLaListe="select count(*) nbProduitPritDansLaListe from contenuListe where listeId=".$liste." and membreId is not null";
+
+	$resTousLesProduits=mysql_query($requeteTousLesProduitsDeLaListe);
+	$resTousLesProduitsPrit=mysql_query($requeteTousLesProduitsPritDeLaListe);
+
+	$ligneTousLesProduits=mysql_fetch_array($resTousLesProduits);
+	$ligneTousLesProduitsPrit=mysql_fetch_array($resTousLesProduitsPrit);
+
+	$nbTousLesProduits=$ligneTousLesProduits['nbProduitDansLaListe'];
+	$nbTousLesProduitsPrit=$ligneTousLesProduitsPrit['nbProduitPritDansLaListe'];
+
+	if($nbTousLesProduits==$nbTousLesProduitsPrit)
+	{
+		$reqArchivageListe="update liste set enCours=0 where listeId=".$liste;
+		$res=mysql_query($reqArchivageListe);
+		//Recherche de la liste suivante
+	    $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$famille." and enCours='FALSE' and listeId>".$liste;
+	    //echo $sql;
+	    $res=mysql_query($sql);
+	    $ligne=mysql_fetch_array($res);
+	    if($ligne['listeDeLaFamilleInactif']==NULL)
+	    {
+			//echo "If ";
+	      	$newListe=creerNouvelleListe("TRUE");
+	    }
+	    else
+	    {
+	    	//echo "Else";
+	    	$newListe=$ligne['listeDeLaFamilleInactif'];
+	    	$sql="update liste set enCours=1 where listeId=".$newListe;
+	    	//echo $sql;
+	    	$res=mysql_query($sql);
+	    }
+	}
+
+}
+
 /**
  * Fonction qui retire tous les produit non-désiré de la liste.
  * Elle exécute une requête de supression de données autant de fois qu'il à de produit à retirer.
@@ -37,24 +86,7 @@ function annulerProduitDeLaListe()
 		$res=mysql_query($sql);
 	}
  }
-/**
- * Fonction qui créer une nouvelle liste de course pour la famille, si elle n'existe pas
- * Elle exécute une requête de création de dans la table liste. Une liste qui est n'est pas active, elle s'apparente à la liste suivante.
- */
- function creerNouvelleListe()
- {
-	$famille=connaitreFamilleDuMembreConnecte();
-	$sql="select ifnull(max(listeId),0)+1 nouvelListeId from liste";
-	//echo $sql;
-    $res=mysql_query($sql);
-    $ligne=mysql_fetch_array($res);
-    $idNouvelleListe=$ligne['nouvelListeId'];
-    $sql="insert into liste(listeId, familleId, enCours) values(".$idNouvelleListe.", ".$famille.", FALSE)";
-	//echo $sql;
-    $res=mysql_query($sql);
-    return $idNouvelleListe;
- }
- 
+
 /**
  * Fonction qui report sur la liste de course suivante
  * Elle exécute une requête pour connaitre la liste de course suivante, la crée aux besoins, et ajoute les produits dans la nouvelle liste
@@ -65,14 +97,14 @@ function annulerProduitDeLaListe()
 	$oldListe=connaitreListeDuMembreConnecte();
 	$famille=connaitreFamilleDuMembreConnecte();
     //Recherche de la liste suivante
-    $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$famille." and enCours='FALSE'";
+    $sql="select max(listeId) listeDeLaFamilleInactif from liste where familleId=".$famille." and enCours='FALSE' and listeId>".$oldListe;
     //echo $sql;
     $res=mysql_query($sql);
     $ligne=mysql_fetch_array($res);
     if($ligne['listeDeLaFamilleInactif']==NULL)
     {
 		//echo "If ";
-      	$newListe=creerNouvelleListe();
+      	$newListe=creerNouvelleListe("FALSE");
     }
     else
     {
@@ -84,7 +116,7 @@ function annulerProduitDeLaListe()
     foreach($tabNoArticle as $noArticle)
     {
         $sql="update contenuListe set listeId=".$newListe." where listeId=".$oldListe." and produitId=".$noArticle;
-		//echo $sql;
+        //echo $sql;
 		$res=mysql_query($sql);
     }
   }
@@ -186,12 +218,15 @@ if(isset($_GET['action']))
 	{
 		case "acheter":
 			poserProduitDansCaddy();
+			archivageListe();
 			break;
 		case "annuler":
 			annulerProduitDeLaListe();
+			archivageListe();
 			break;
 		case "reporter": 
 			reporterProduitListeSuivante();
+			archivageListe();
 			break;
 	}
 	listeProduitsOrdreRayonsMagasin();

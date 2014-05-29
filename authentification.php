@@ -12,7 +12,7 @@ include("commun.php");
  */
 function nouveauIdMembre()
 {
-	$sql='select ifnull(max(membreId),0)+1 nouvelId from membre';
+	$sql="select ifnull(max(membreId),0)+1 nouvelId from membre";
 	//echo $sql;
 	$res=mysql_query($sql);
 	$ligne=mysql_fetch_array($res);

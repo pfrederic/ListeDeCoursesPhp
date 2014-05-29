@@ -93,6 +93,7 @@ function creationFamille()
 	$sql="update membre set familleId=".$identifiant." where membreId='".$membre."'";
 	$res=mysql_query($sql);
 	$json['famille'][]=array("success"=>"");
+	creerNouvelleListe("TRUE");
 	echo json_encode($json);
 }
 
