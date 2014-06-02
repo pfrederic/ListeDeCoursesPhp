@@ -51,7 +51,7 @@ function connexionMembre($loginMembre, $mdpMembre)
 
 /**
  * Fontction qui enregistre un nouvel utilisateur (membre).
- * Exécute une requête sql d'insertion, avec les infrmations saisies par l'utilisateur sur l'application. Si l'identifiant saisi est déjà enregistrer dans la base, retour d'une erreur en Json.
+ * Exécute une requête sql d'insertion, avec les infrmations saisies par l'utilisateur sur l'application. Si l'identifiant saisi est déjà enregistrer dans la base, retour d'une erreur en Json. Si l'enregistrement a bien été fait, alors un mail est envoyé au nouveau membre.
  * @param  string $loginMembre
  * @param  string $mdpMembre
  * @param  string $mailMembre
@@ -75,6 +75,10 @@ function enregistrerNouveauMembre($loginMembre, $mdpMembre, $mailMembre, $naissa
 	else
 	{
 		$json['register'][]=array("success"=>"");
+		$subject="Bienvenue";
+		$header="Bienvenue";
+		$message="Bonjour\r\n Vous venez de vous inscrite à l'application liste de course, merci de votre confiance.\r\n Bon shopping ;)";
+		mail($mailMembre, $subject, $header, $message);
 		$_SESSION['membre']=$idMembre;
 	}
 	echo json_encode($json);
