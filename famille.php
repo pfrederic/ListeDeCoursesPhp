@@ -50,7 +50,7 @@ function affectationFamille($idFamille)
  */
 function creerNouvelIdentifiant()
 {
-	$sql="select ifnull(max(membreId),0)+1 nouvelId from famille";
+	$sql="select ifnull(max(familleId),0)+1 nouvelId from famille";
 	//echo $sql;
 	$res=mysql_query($sql);
 	$ligne=mysql_fetch_array($res);
